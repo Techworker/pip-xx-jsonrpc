@@ -1,0 +1,317 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "This schema describes the JSON RPC requests of PascalCoin - http://www.pascalcoin.org",
+  "oneOf": [
+    { "$ref": "#/definitions/methods/account/find" },
+    { "$ref": "#/definitions/methods/node/add_nodes" },
+    { "$ref": "#/definitions/methods/node/status" },
+    { "$ref": "#/definitions/methods/node/connections" },
+    { "$ref": "#/definitions/methods/node/start" },
+    { "$ref": "#/definitions/methods/node/stop" }
+  ],
+  "definitions": {
+    "request": {
+      "description": "A basic json rpc standards compliant request",
+      "type": "object",
+      "required": [ "jsonrpc", "method" ],
+      "properties": {
+        "jsonrpc": { "enum": [ "2.0" ] },
+        "id": {
+          "type": [ "string", "number", "null" ],
+          "note": [
+            "While allowed, null should be avoided: http://www.jsonrpc.org/specification#id1",
+            "While allowed, a number with a fractional part should be avoided: http://www.jsonrpc.org/specification#id2"
+          ]
+        }
+      }
+    },
+    "types": {
+      "account": {
+        "description": "An account number.",
+        "type": "integer"
+      },
+      "block": {
+        "description": "A block number.",
+        "type": "integer"
+      },
+      "pascal": {
+        "description": "A currency value.",
+        "type": "string",
+        "pattern": "^[1-9][0-9]+$"
+      },
+      "hex": {
+        "description": "A hex string of any kind.",
+        "type": "string",
+        "pattern": "[0-9A-F]{2}$"
+      }
+   },
+    "methods": {
+      "node": {
+        "add_nodes": {
+          "description": "Adds one or more nodes to the running node.",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/request"
+            },
+            {
+              "properties": {
+                "method": {
+                  "type": "string",
+                  "enum": [
+                    "node.add_nodes"
+                  ]
+                },
+                "params": {
+                  "description": "A list of nodes in the format of host or host:port",
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "status": {
+          "description": "Gets the status information of the node.",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/request"
+            },
+            {
+              "properties": {
+                "method": {
+                  "type": "string",
+                  "enum": [
+                    "node.status"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "connections": {
+          "description": "Gets the list of connected nodes.",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/request"
+            },
+            {
+              "properties": {
+                "method": {
+                  "type": "string",
+                  "enum": [
+                    "node.connections"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "start": {
+          "description": "Starts the node.",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/request"
+            },
+            {
+              "properties": {
+                "method": {
+                  "type": "string",
+                  "enum": [
+                    "node.start"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "stop": {
+          "description": "Stops the running node.",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/request"
+            },
+            {
+              "properties": {
+                "method": {
+                  "type": "string",
+                  "enum": [
+                    "node.stop"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "blocks": {
+        "find": {
+          "description": "Searches for a block identified by the given block number.",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/request"
+            },
+            {
+              "properties": {
+                "method": {
+                  "type": "string",
+                  "enum": ["blocks.find"]
+                },
+                "params": {
+                  "type": "object",
+                  "properties": {
+                    "block": {
+                      "$ref": "#/definitions/types/block"
+                    }
+                  },
+                  "required": ["block"]
+                }
+              }
+            }
+          ]
+        },
+        "last": {
+          "description": "Gets the last blocks.",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/request"
+            },
+            {
+              "properties": {
+                "method": {
+                  "type": "string",
+                  "enum": ["blocks.last"]
+                },
+                "params": {
+                  "type": "object",
+                  "properties": {
+                    "amount": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": ["amount"]
+                }
+              }
+            }
+          ]
+        },
+        "list": {
+          "description": "Gets a list of all blocks.",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/request"
+            },
+            {
+              "properties": {
+                "method": {
+                  "type": "string",
+                  "enum": ["blocks.list"]
+                },
+                "params": {
+                  "type": "object",
+                  "properties": {
+                    "start": {
+                      "type": "integer"
+                    },
+                    "amount": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": ["start"]
+                }
+              }
+            }
+          ]
+        },
+        "count": {
+          "description": "Gets the number of all blocks.",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/request"
+            },
+            {
+              "properties": {
+                "method": {
+                  "type": "string",
+                  "enum": ["blocks.count"]
+                }
+              }
+            }
+          ]
+        },
+        "operations": {
+          "description": "Gets a list of all operations of a block.",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/request"
+            },
+            {
+              "properties": {
+                "method": {
+                  "type": "string",
+                  "enum": ["blocks.operations"]
+                },
+                "params": {
+                  "type": "object",
+                  "properties": {
+                    "start": {
+                      "type": "integer",
+                      "default": 0
+                    },
+                    "amount": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": ["start"]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "block": {
+
+      },
+      "account": {
+        "find": {
+          "description": "Searches for an account identified by the given account number.",
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/request"
+            },
+            {
+              "properties": {
+                "method": {
+                  "type": "string",
+                  "enum": ["account.find"]
+                },
+                "params": {
+                  "type": "object",
+                  "properties": {
+                    "account": {
+                      "$ref": "#/definitions/types/account"
+                    }
+                  },
+                  "required": ["account"]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

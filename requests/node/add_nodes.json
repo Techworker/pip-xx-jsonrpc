@@ -1,0 +1,6 @@
+{
+  "jsonrpc": "2.0",
+  "method": "node.add_nodes",
+  "params": ["testnode"],
+  "id": 1
+}
