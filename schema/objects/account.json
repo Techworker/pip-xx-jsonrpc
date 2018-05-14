@@ -1,0 +1,83 @@
+{
+  "$id": "http://www.pascalcoin.org/schemas/objects/account.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Holds the information about an account.",
+  "type": "object",
+  "properties": {
+    "account": {
+      "description": "The account number of the current account",
+      "$ref": "../types.json#/definitions/account_number"
+    },
+    "name": {
+      "description": "The unique name of the account.",
+      "$ref": "../types.json#/definitions/account_name"
+    },
+    "type": {
+      "description": "The type of the account.",
+      "$ref": "../types.json#/definitions/account_type"
+    },
+    "public_key_hex": {
+      "description": "The public key that owns the account.",
+      "$ref": "../types.json#/definitions/public_key_hex"
+    },
+    "balance": {
+      "description": "The balance of the account in molinas.",
+      "$ref": "../types.json#/definitions/currency"
+    },
+    "count_operations": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "block_last_updated": {
+      "description": "The block when the account was last updated. If the block number is equal to the number of mined blocks it means that it has pending operations to be included.",
+      "$ref": "../types.json#/definitions/block_number"
+    },
+    "state": {
+      "description": "The state of the account (listed = for sale, normal = normal).",
+      "type": "string",
+      "enum": [
+        "normal",
+        "listed"
+      ]
+    },
+    "listing": {
+      "oneOf": [
+        {
+          "$ref": "account/listing.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "anyOf": [
+    {
+      "properties": {
+        "state": { "enum": ["listed"] },
+        "listing": {
+          "$ref": "account/listing.json"
+        }
+      }
+    },
+    {
+      "properties": {
+        "state": { "enum": ["normal"] },
+        "listing": {
+          "type": "null"
+        }
+      }
+    }
+  ],
+  "required": [
+    "account",
+    "name",
+    "type",
+    "public_key_hex",
+    "balance",
+    "count_operations",
+    "block_last_updated",
+    "state",
+    "listing"
+  ]
+}

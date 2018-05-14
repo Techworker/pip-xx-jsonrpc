@@ -1,0 +1,55 @@
+{
+  "$id": "http://www.pascalcoin.org/schemas/types.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "This schema contains definitions for predefined value types which can be used across.",
+  "definitions": {
+    "account_number": {
+      "description": "An account number without the checksum.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "block_number": {
+      "description": "A block number.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "currency": {
+      "description": "A Pascal currency value in the smallest available unit (molinas) as string.",
+      "type": "string",
+      "pattern": "^[\\-]*[1-9][0-9]+$"
+    },
+    "op_hash": {
+      "description": "An operation hash.",
+      "type": "string",
+      "pattern": "[0-9A-F]{64}$"
+    },
+    "hex": {
+      "description": "A hex string (always even length)",
+      "type": "string",
+      "pattern": "^[^A-F0-9]*([A-F0-9][^A-F0-9]*[A-F0-9][^A-F0-9]*)*$"
+    },
+    "account_name": {
+      "description": "The name of an account.",
+      "type": "string",
+      "pattern": "^[a-z!@#$%^&*()-+{}\\[\\]_:`|<>,\\.\\?\/~][a-z0-9!@#$%^&*()-+{}\\[\\]_:`\\|<>,\\.\\?\\/~]*$"
+    },
+    "account_type": {
+      "description": "The type of an account.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65536
+    },
+    "public_key": {
+      "type": "string",
+      "pattern": "^([1-9A-HJ-NP-Za-km-z]+|[^A-F0-9]*([A-F0-9][^A-F0-9]*[A-F0-9][^A-F0-9]*)*)$"
+    },
+    "public_key_hex": {
+      "type": "string",
+      "pattern": "^[^A-F0-9]*([A-F0-9][^A-F0-9]*[A-F0-9][^A-F0-9])*$"
+    },
+    "public_key_base_58": {
+      "type": "string",
+      "pattern": "^[1-9A-HJ-NP-Za-km-z]+$"
+    }
+  }
+}

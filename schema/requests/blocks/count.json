@@ -1,0 +1,28 @@
+{
+  "$id": "http://www.pascalcoin.org/schemas/requests/blocks/count.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Gets the number of mined blocks known by the node.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../rpc-request.json"
+    },
+    {
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "blocks.count"
+          ]
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+          },
+          "required": [
+          ]
+        }
+      }
+    }
+  ]
+}

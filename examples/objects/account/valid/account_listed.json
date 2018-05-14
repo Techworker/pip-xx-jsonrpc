@@ -1,0 +1,17 @@
+{
+  "account": 11556,
+  "name": "newname",
+  "type": 54321,
+  "enc_pub_key": "CA0220002D36A816C75005FA5818A5D4D0773AFEBB681CE6308224AF3496FDE3DC03268D20004F4157080BEC67A07F4227C88042C926A9F5E20FC829B8332F9BA14F5BA9929C",
+  "balance": "60000",
+  "count_operations": 18,
+  "block_last_updated": 18796,
+  "state": "listed",
+  "listing": {
+    "block_locked_until": 0,
+    "price": "10000000",
+    "account_seller": 11557,
+    "private_sale": false,
+    "enc_pub_key_new": "000000000000"
+  }
+}

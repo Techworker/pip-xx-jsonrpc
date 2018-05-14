@@ -1,0 +1,38 @@
+{
+  "$id": "http://www.pascalcoin.org/schemas/objects/account/listing.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Holds the information about a listing of an account.",
+  "type": "object",
+  "required": [
+    "block_locked_until",
+    "price",
+    "account_seller",
+    "private_sale",
+    "enc_pub_key_new"
+  ],
+  "properties": {
+    "block_locked_until": {
+      "$ref": "../../types.json#/definitions/block_number"
+    },
+    "price": {
+      "$ref": "../../types.json#/definitions/currency"
+    },
+    "account_seller": {
+      "$ref": "../../types.json#/definitions/account_number"
+    },
+    "private_sale": {
+      "type": "boolean"
+    },
+    "public_key_new_hex": {
+      "oneOf": [
+        {
+          "$ref": "../../types.json#/definitions/public_key_hex"
+        },
+        {
+          "type": "null"
+        }
+      ]
+
+    }
+  }
+}

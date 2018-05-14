@@ -1,0 +1,21 @@
+{
+  "$id": "http://www.pascalcoin.org/schemas/requests/node/stop.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Stops the requested node.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../rpc-request.json"
+    },
+    {
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "node.stop"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "$id": "http://www.pascalcoin.org/schemas/responses/node/add_nodes.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "The number of added nodes.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../rpc-response.json"
+    },
+    {
+      "properties": {
+        "result": {
+          "description": "The number of added nodes.",
+          "type": "integer"
+        }
+      }
+    }
+  ]
+}

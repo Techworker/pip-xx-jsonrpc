@@ -1,0 +1,38 @@
+{
+  "$id": "http://www.pascalcoin.org/schemas/requests/node/add_nodes.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Adds one or more nodes to the list of nodes and returns the number of nodes added.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../rpc-request.json"
+    },
+    {
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "node.add_nodes"
+          ]
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "nodes": {
+              "description": "The list of nodes to add in the form of IP:port.",
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              }
+            },
+            "account": {
+              "$ref": "../../types.json#/definitions/account_number"
+            }
+          },
+          "required": ["nodes", "account"]
+        }
+      }
+    }
+  ]
+}

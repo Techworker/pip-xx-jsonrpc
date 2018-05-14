@@ -1,0 +1,36 @@
+{
+  "$id": "http://www.pascalcoin.org/schemas/requests/blocks/get_operation_at.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Gets the Operation in the defined block at the defined position. If there is no operation at the given position or the block does not exist the method will return null.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../rpc-request.json"
+    },
+    {
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "blocks.get_operation_at"
+          ]
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "block_number": {
+              "$ref": "../../types.json#/definitions/block_number"
+            },
+            "position": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "block_number", "position"
+          ]
+        }
+      }
+    }
+  ]
+}

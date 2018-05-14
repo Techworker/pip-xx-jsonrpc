@@ -1,0 +1,33 @@
+{
+  "$id": "http://www.pascalcoin.org/schemas/requests/blocks/last.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Gets the defined number of blocks starting from the last mined block in reverse order.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../rpc-request.json"
+    },
+    {
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "blocks.last"
+          ]
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "count"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "$id": "http://www.pascalcoin.org/schemas/requests/accounts/get.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Gets the account with the specified account number. If no account was found, it will return null.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../rpc-request.json"
+    },
+    {
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "accounts.get"
+          ]
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "account": {
+              "$ref": "../../types.json#/definitions/account_number"
+            }
+          },
+          "required": [
+            "account"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "$id": "http://www.pascalcoin.org/schemas/requests/blocks/get.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Gets the block with the given block_number. If the block was not found, it will return null.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../rpc-request.json"
+    },
+    {
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "blocks.get"
+          ]
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "block_number": {
+              "$ref": "../../types.json#/definitions/block_number"
+            }
+          },
+          "required": [
+            "block"
+          ]
+        }
+      }
+    }
+  ]
+}

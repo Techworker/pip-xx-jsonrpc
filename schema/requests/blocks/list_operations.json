@@ -1,0 +1,42 @@
+{
+  "$id": "http://www.pascalcoin.org/schemas/requests/blocks/list_operations.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Lists all operations of the given block. The results are sliced by the given start and max values. If the block has no operation, it will return an empty array.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../rpc-request.json"
+    },
+    {
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "blocks.list_operations"
+          ]
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "block_number": {
+              "$ref": "../../types.json#/definitions/block_number"
+            },
+            "offset": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 100
+            }
+          },
+          "required": [
+            "block_number"
+          ]
+        }
+      }
+    }
+  ]
+}

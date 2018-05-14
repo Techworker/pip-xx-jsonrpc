@@ -1,0 +1,21 @@
+{
+  "$id": "http://www.pascalcoin.org/schemas/requests/node/start.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Starts the requested node.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../rpc-request.json"
+    },
+    {
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "node.start"
+          ]
+        }
+      }
+    }
+  ]
+}

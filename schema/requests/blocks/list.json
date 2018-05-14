@@ -1,0 +1,36 @@
+{
+  "$id": "http://www.pascalcoin.org/schemas/requests/blocks/list.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Gets the blocks in the defined block number range. If there are no blocks in the given range, the method will return an empty array. If the range overlaps the last mined block, the last block in the returned array will be the last mined block. If the range is beyond the last mined block, the result will be an empty array. If no blocks are found, the method will return an empty array.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../rpc-request.json"
+    },
+    {
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "blocks.list"
+          ]
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "block_number_from": {
+              "$ref": "../../types.json#/definitions/block_number"
+            },
+            "block_number_to": {
+              "$ref": "../../types.json#/definitions/block_number"
+            }
+          },
+          "required": [
+            "block_number_from",
+            "block_number_to"
+          ]
+        }
+      }
+    }
+  ]
+}

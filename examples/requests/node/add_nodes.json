@@ -1,6 +1,6 @@
 {
   "jsonrpc": "2.0",
   "method": "node.add_nodes",
-  "params": ["testnode"],
+  "params": {"nodes": ["1.1.1.1:4003", "192.168.0.88:4003"]},
   "id": 1
 }
