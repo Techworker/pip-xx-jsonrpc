@@ -1,0 +1,66 @@
+{
+  "$id": "http://www.pascalcoin.org/schemas/objects/connection.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Holds data about a connection to a remote node.",
+  "type": "object",
+  "required": [
+    "type",
+    "ip",
+    "port",
+    "seconds_alive",
+    "bytes_sent",
+    "bytes_received",
+    "app_version",
+    "net_version",
+    "net_version_available",
+    "time_difference"
+  ],
+  "properties": {
+    "type": {
+      "description": "`server` if this connection is to a server node. `client` if this connection is a client node",
+      "type": "string",
+      "enum": [
+        "server", "client"
+      ]
+    },
+    "ip": {
+      "description": "The IP of remote node.",
+      "type": "string",
+      "format": "ipv4"
+    },
+    "port": {
+      "description": "The Port used by the remote node.",
+      "type": "integer",
+      "minumum": 0,
+      "maximum": 65535
+    },
+    "seconds_alive": {
+      "description": "The number of the seconds the connection to the remote node is alive",
+      "type": "integer"
+    },
+    "bytes_sent": {
+      "description": "The number of bytes received from the remote node.",
+      "type": "integer"
+    },
+    "bytes_received": {
+      "description": "The number of bytes sent to the remote node.",
+      "type": "integer"
+    },
+    "app_version": {
+      "description": "The application version of the remote node",
+      "type": "string"
+    },
+    "net_version": {
+      "description": "The net protocol version of the remote node",
+      "type": "integer"
+    },
+    "net_version_available": {
+      "description": "The net protocol version available of the remote node",
+      "type": "integer"
+    },
+    "time_difference": {
+      "description": "The time difference in seconds of the remote node against the requested node.",
+      "type": "integer"
+    }
+  }
+}

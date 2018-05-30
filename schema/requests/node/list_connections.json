@@ -1,5 +1,5 @@
 {
-  "$id": "http://www.pascalcoin.org/schemas/requests/node/connections.json",
+  "$id": "http://www.pascalcoin.org/schemas/requests/node/list_connections.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "description": "Gets the list of all connections of the requested node.",
   "type": "object",
@@ -12,7 +12,7 @@
         "method": {
           "type": "string",
           "enum": [
-            "node.connections"
+            "node.list_connections"
           ]
         }
       }

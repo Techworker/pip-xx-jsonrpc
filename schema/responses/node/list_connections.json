@@ -1,0 +1,22 @@
+{
+  "$id": "http://www.pascalcoin.org/schemas/responses/node/list_connections.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Response of the node.list_connections call.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../rpc-response.json"
+    },
+    {
+      "properties": {
+        "result": {
+          "description": "Information about a node.",
+          "type": "array",
+          "items": {
+            "$ref": "../../objects/connection.json"
+          }
+        }
+      }
+    }
+  ]
+}

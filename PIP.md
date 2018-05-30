@@ -179,7 +179,47 @@ There are several properties which are clearly definable and should be re-used i
 
 ##### Connection
 
-[type=connection]
+Holds data about a connection to a remote node.
+
+**Properties**
+
+ - `type` - string `server` if this connection is to a server node. `client` if this connection is a client node
+
+ - `ip` - string The IP of remote node.
+
+ - `port` - integer The Port used by the remote node.
+
+ - `seconds_alive` - integer The number of the seconds the connection to the remote node is alive
+
+ - `bytes_sent` - integer The number of bytes received from the remote node.
+
+ - `bytes_received` - integer The number of bytes sent to the remote node.
+
+ - `app_version` - string The application version of the remote node
+
+ - `net_version` - integer The net protocol version of the remote node
+
+ - `net_version_available` - integer The net protocol version available of the remote node
+
+ - `time_difference` - integer The time difference in seconds of the remote node against the requested node.
+
+**Example**
+
+```json
+{
+  "type": "server",
+  "ip": "188.166.87.36",
+  "port": 4004,
+  "seconds_alive": 232,
+  "bytes_sent": 1311,
+  "bytes_received": 1722,
+  "app_version": "2.1.9lF",
+  "net_version": 6,
+  "net_version_available": 6,
+  "time_difference": 0
+}
+```
+
 
 ##### Account
 
@@ -263,7 +303,71 @@ This method will be renamed to `node.add_nodes` (plural) since it receives multi
 
 ---
 
-[signature=node/add_nodes] 
+###### node.add_nodes
+
+*Adds one or more nodes to the list of nodes and returns the number of nodes added.*
+
+```
+integer node.add_nodes(
+  Array<string> $nodes
+)
+```
+
+**Parameters**
+
+ - `Array<string> $nodes` The list of nodes to add in the form of IP:port.
+
+**Result**
+
+The number of added nodes.
+
+**Example Request**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "node.add_nodes",
+  "params": {
+    "nodes": [
+      "1.1.1.1:4003",
+      "192.168.0.88:4003"
+    ]
+  },
+  "id": 1
+}
+```
+
+**Example Response**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": 1
+}
+```
+
+**Example curl request**
+
+
+```bash
+curl -X POST http://localhost:4003 \
+     -H "PascalCoin-Api-Version: v2" \
+     -d @- << EOF
+{
+  "jsonrpc": "2.0",
+  "method": "node.add_nodes",
+  "params": {
+    "nodes": [
+      "1.1.1.1:4003",
+      "192.168.0.88:4003"
+    ]
+  },
+  "id": 1
+} 
+EOF
+```
+ 
 
 ---
 
@@ -291,7 +395,73 @@ This method will be renamed to `node.list_connections`.
 
 ---
 
-[signature=node/list_connections] 
+###### node.list_connections
+
+*Gets the list of all connections of the requested node.*
+
+```
+array node.list_connections()
+```
+
+**Parameters**
+
+ - No parameters.
+
+
+**Result**
+
+Information about a node.
+
+**Example Request**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "node.list_connections",
+  "params": {},
+  "id": 1
+}
+```
+
+**Example Response**
+
+```json
+{
+  "id": 123,
+  "jsonrpc": "2.0",
+  "result": [
+    {
+      "type": "server",
+      "ip": "188.166.87.36",
+      "port": 4004,
+      "seconds_alive": 232,
+      "bytes_sent": 1311,
+      "bytes_received": 1722,
+      "app_version": "2.1.9lF",
+      "net_version": 6,
+      "net_version_available": 6,
+      "time_difference": 0
+    }
+  ]
+}
+```
+
+**Example curl request**
+
+
+```bash
+curl -X POST http://localhost:4003 \
+     -H "PascalCoin-Api-Version: v2" \
+     -d @- << EOF
+{
+  "jsonrpc": "2.0",
+  "method": "node.list_connections",
+  "params": {},
+  "id": 1
+} 
+EOF
+```
+ 
 
 ---
 

@@ -1,0 +1,6 @@
+{
+  "jsonrpc": "2.0",
+  "method": "node.list_connections",
+  "params": {},
+  "id": 1
+}

@@ -1,0 +1,12 @@
+{
+  "type": "server",
+  "ip": "188.166.87.36",
+  "port": 4004,
+  "seconds_alive": 232,
+  "bytes_sent": 1311,
+  "bytes_received": 1722,
+  "app_version": "2.1.9lF",
+  "net_version": 6,
+  "net_version_available": 6,
+  "time_difference": 0
+}

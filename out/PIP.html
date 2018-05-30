@@ -1,0 +1,812 @@
+<meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="https://sindresorhus.com/github-markdown-css/github-markdown.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"><style>.markdown-body {box-sizing: border-box;min-width: 200px;max-width: 980px;margin: 0 auto;padding: 45px;}@media (max-width: 767px) {.markdown-body {padding: 15px;}}</style><article class="markdown-body"><pre><code>PIP: -1
+Title: Renovation of JSON RPC API
+Type: ?
+Impact: API
+Author: Benjamin Ansbach &lt;benjaminansbach@gmail.com&gt;
+Comments-URI: ?
+Status: Draft
+Created: 2018-04-2
+</code></pre><!-- toc -->
+<ul>
+<li><a href="#summary">Summary</a></li>
+<li><a href="#motivation">Motivation</a></li>
+<li><a href="#specification">Specification</a><ul>
+<li><a href="#json-schema">JSON-Schema</a></li>
+<li><a href="#naming-convention">Naming convention</a></li>
+<li><a href="#api-versioning-and-consistency">API versioning and consistency</a><ul>
+<li><a href="#versioning">Versioning</a></li>
+</ul>
+</li>
+<li><a href="#error-handling">Error handling</a></li>
+<li><a href="#predefined-types">Predefined Types</a><ul>
+<li><a href="#properties">Properties:</a></li>
+<li><a href="#objects">Objects</a><ul>
+<li><a href="#connection">Connection</a></li>
+<li><a href="#account">Account</a></li>
+</ul>
+</li>
+<li><a href="#multi-usage-of-fields">Multi-Usage of fields</a></li>
+<li><a href="#prices">Prices</a></li>
+<li><a href="#paging">Paging</a></li>
+</ul>
+</li>
+<li><a href="#method-namespacing">Method namespacing</a><ul>
+<li><a href="#namespace-node">Namespace <code>node</code></a><ul>
+<li><a href="#addnode">addnode</a><ul>
+<li><a href="#nodeadd_nodes">node.add_nodes</a></li>
+</ul>
+</li>
+<li><a href="#nodestatus">nodestatus</a></li>
+<li><a href="#getconnections">getconnections</a><ul>
+<li><a href="#nodelist_connections">node.list_connections</a></li>
+</ul>
+</li>
+<li><a href="#stopnode">stopnode</a></li>
+<li><a href="#startnode">startnode</a></li>
+</ul>
+</li>
+<li><a href="#namespace-blocks">Namespace <code>blocks</code></a><ul>
+<li><a href="#getblock">getblock</a></li>
+<li><a href="#getblocks">getblocks</a></li>
+<li><a href="#getblockcount">getblockcount</a></li>
+<li><a href="#getblockoperation">getblockoperation</a></li>
+<li><a href="#getblockoperations">getblockoperations</a></li>
+</ul>
+</li>
+<li><a href="#namespace-accounts">Namespace <code>accounts</code></a><ul>
+<li><a href="#getaccount">getaccount</a></li>
+<li><a href="#findaccounts">findaccounts</a></li>
+</ul>
+</li>
+<li><a href="#namespace-wallet">Namespace <code>wallet</code></a><ul>
+<li><a href="#getwalletaccounts">getwalletaccounts</a></li>
+<li><a href="#getwalletaccountscount">getwalletaccountscount</a></li>
+<li><a href="#getwalletpubkeys">getwalletpubkeys</a></li>
+<li><a href="#getwalletpublickey">getwalletpublickey</a></li>
+<li><a href="#setwalletpassword">setwalletpassword</a></li>
+<li><a href="#getwalletcoins">getwalletcoins</a></li>
+<li><a href="#addnewkey">addnewkey</a></li>
+<li><a href="#lock">lock</a></li>
+<li><a href="#unlock">unlock</a></li>
+</ul>
+</li>
+<li><a href="#namespace-operations">Namespace <code>operations</code></a><ul>
+<li><a href="#getpendings">getpendings</a></li>
+<li><a href="#findoperation">findoperation</a></li>
+<li><a href="#executeoperations">executeoperations</a></li>
+</ul>
+</li>
+<li><a href="#namespace-offline">Namespace <code>offline</code></a><ul>
+<li><a href="#operationsinfo">operationsinfo</a></li>
+<li><a href="#singsendto">singsendto</a></li>
+<li><a href="#signchangekey">signchangekey</a></li>
+<li><a href="#signlistaccountforsale">signlistaccountforsale</a></li>
+<li><a href="#signdelistaccountforsale">signdelistaccountforsale</a></li>
+<li><a href="#signbuyaccount">signbuyaccount</a></li>
+<li><a href="#signchangeaccountinfo">signchangeaccountinfo</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#objects-1">Objects</a><ul>
+<li><a href="#account-1">Account</a></li>
+</ul>
+</li>
+<li><a href="#rationale">Rationale</a></li>
+<li><a href="#backwards-compatibility">Backwards Compatibility</a></li>
+<li><a href="#reference-implementation">Reference Implementation</a></li>
+<li><a href="#links">Links</a></li>
+</ul>
+<!-- tocstop -->
+<h2 id="summary">Summary</h2>
+<p>It is proposed to implement a revised version of the JSON RPC API and it&#39;s objects returned by requests.</p>
+<h2 id="motivation">Motivation</h2>
+<p>While the JSON RPC API in it&#39;s current state works as intended, it&#39;s obvious that it is a historically grown solution that lacks a lot of organization and reliable standards throughout it&#39;s implementation. </p>
+<p>To drive adoption of the currency by the developer community and open up the technology to a broader audience without the knowledge of the Pascal language, it is essential to provide an API that is clear, concise, easy to use and tested.</p>
+<h2 id="specification">Specification</h2>
+<p>The goal of this PIP is to provide a set of rules as well as the definitions of the JSON-RPC methods implemented in the PascalCoin Node server (<code>TODO: name?</code>). It will be a complete overhaul of the current implementation and backwards compatibility is only achieved by letting the old implementation active for a defined period of time when it gets abandoned completely.</p>
+<h3 id="json-schema">JSON-Schema</h3>
+<p>There are a lot API-documentation tools out there, but they all lack the ability to create a specification for an  API using JSON RPC. The best way to describe such an API is to use the JSON Schema Vocabulary. It provides a way to describe JSON and is capable to define the complete API of PascalCoin.</p>
+<p>Since it&#39;s an open standard and there are a lot of json-schema libraries out there, the resulting schema can be used to automatically create the documentation, write/execute/evaluate tests or even generate api-clients in more or less any language which can communicate via HTTP.</p>
+<h3 id="naming-convention">Naming convention</h3>
+<p>This proposal introduces naming conventions for object properties as well as methods to create a clear path for developers on how one can identify the intend of methods and guess the meaning of fields defined in either the method parameters and the responses.</p>
+<p>There are no expressed naming conventions in the jsonrpc specification itself, just the 4 predefined fields <code>jsonrpc</code>, <code>method</code>, <code>params</code> and <code>id</code>. What we can derive from these fields is that all fields should be lowercase. But that&#39;s all.</p>
+<p>This specification defines the following rules for the naming of fields (and methods) in JSON objects.</p>
+<ul>
+<li>Names must be meaningful with defined semantics.</li>
+<li>Names must be snake-cased ascii strings (lower case, underscore).</li>
+<li>The first character must be a letter (<code>[a-z]</code>)</li>
+<li>Minimum length is 2 letters.</li>
+<li>Subsequent characters can be a letter or an underscore (<code>[a-z_]</code>).</li>
+<li>Words typically reserved in programming languages should be avoided (e.g. <code>if</code>, <code>delete</code>, <code>while</code>, ..). There is no definite list available, just make sure it follows common knowledge.</li>
+<li>Method names can also contain a <code>.</code> (dot) to categorize them (<code>[a-z_\.]</code>).</li>
+</ul>
+<p>A regular expression to check the property names will look like this (just an excerpt of reserved words):</p>
+<pre><code>^a-z{2,}(?&lt;!while|for|if|else)$
+</code></pre><p>A regular expression to check the method names will look like this (just an excerpt of reserved words):</p>
+<pre><code>^[a-z][a-z_\.]{2,}(?&lt;!while|for|if|else)$
+</code></pre><h3 id="api-versioning-and-consistency">API versioning and consistency</h3>
+<p>The responses returned by the JSON RPC interface must follow a pre-defined set of rules to avoid having breaking changes on a new release. The standard JSON libraries allows us to deserialize whatever we want, but the rules to change the format must be defined.</p>
+<p>It must be possible for an object to evolve by removing or adding additional fields, but depending on the impact different rules apply:</p>
+<ul>
+<li>When a field is added, it is per se <strong>not</strong> a breaking change. The client library either handles the new value or not. JSON deserializers normally won&#39;t break. Client libraries need to make sure that all unknown fields are handled properly or are ignored.</li>
+<li>When a field is removed, it <strong>is</strong> a breaking change. The client library might parse the values to trigger further logic.</li>
+<li>When a field is renamed, it is the same as when a field is removed. So it <strong>is</strong> a breaking change.</li>
+<li>When the logic of how a fields value is calculated changes, it <strong>might</strong> be a breaking change. If it&#39;s a bugfix, it&#39;s fine. If the value does not coherent to another value, it&#39;s fine too. Developers have to decide.</li>
+<li>When a field is added but other fields rely on the newly added field, it <strong>is</strong> a breaking change.</li>
+</ul>
+<p>Objects should never vary in it&#39;s presentation. For example, given the dynamics of an operation, the representation an <code>Operation</code> object can vary. At the current state, properties are added and removed dynamically depending on the type of operation. This will be addressed by defining fields that can contain different types of sub-objects. These fields will always be present but may contain different values or a proper default value (objects = <code>null</code>, strings = <code>null</code>, integers = <code>null</code>, arrays = <code>[]</code>).</p>
+<h4 id="versioning">Versioning</h4>
+<p>There are a lot of ways available to version your API. The proposed way would be to implement an additional HTTP header that identifies the version of the API. This way the endpoint stays the same and there is no additional routing required to differentiate between versions.</p>
+<p>The API versions do not necessarily need to correlate with the version of PascalCoin. While the PascalCoin Software can be in version 6, the API can still retain it&#39;s version 2.0.</p>
+<p>This means that there will be parallel implementations of the API. This also means, that goals should be set with which major version (or block) an older API will be deactivated. </p>
+<p>The use of a <code>X-</code> prefixed HTTP-Headers is deprecated with <a href="https://tools.ietf.org/html/rfc6648">https://tools.ietf.org/html/rfc6648</a>, a suggestion with all the considerations mentioned in the RFC in mind would be: </p>
+<p><code>PascalCoin-Api-Version: v2</code></p>
+<p>The current API will be version 1.0. If the header is not present, the API version refers to the old/current API implementation.</p>
+<p>The versioning scheme follows <a href="https://semver.org/">https://semver.org/</a>. Normally the client will just request the major version (v2, v3,..), but in case of changes in the API which are not breaking changes, the Node itself should be able to handle calls to minor versions (v2.1, v2.2) so the client library is able to use special minor versions. </p>
+<h3 id="error-handling">Error handling</h3>
+<p>Errors must only be thrown in 2 cases:</p>
+<ul>
+<li>Invalid arguments (missing, wrong format)</li>
+<li>Internal errors while processing the request.</li>
+</ul>
+<p>Methods to retrieve data must not throw an error with valid parameters but return null on <code>get_*</code> operations or an empty array with <code>list_*</code> operations. Error handling in client libraries is hard enough, catching possible exceptions and enumerating errors just because some data does not exist makes the implementation harder. </p>
+<p><strong>Examples:</strong></p>
+<p>A call to a method that retrieves an account with an account number that does not exist yet must simply <strong>return null</strong>.</p>
+<p>A call to a method that creates a transaction with an account that does not exist should <strong>return an error</strong>.</p>
+<h3 id="predefined-types">Predefined Types</h3>
+<p>There are several properties which are clearly definable and should be re-used in the same manner on each and every method. </p>
+<h4 id="properties-">Properties:</h4>
+<ul>
+<li><p><strong>account_number</strong> (base type = unsigned integer)
+An account number. It must not contain the checksum value.</p>
+<ul>
+<li>Name/Prefix: <code>account</code> </li>
+<li>Validation: <code>^[0-9]?</code></li>
+</ul>
+</li>
+<li><p><strong>block_number</strong> (base type = unsigned integer)
+The number of a block.</p>
+<ul>
+<li>Name/Prefix: <code>block</code> </li>
+<li>Validation: <code>^[0-9]?</code></li>
+</ul>
+</li>
+<li><p><strong>op_hash</strong> (base type = string)
+The identification of an operation.</p>
+<ul>
+<li>Name/Prefix: <code>op_hash</code> </li>
+<li>Validation: <code>^[0-9A-F]{64}$</code> </li>
+</ul>
+</li>
+<li><p><strong>type</strong> (base type = unsigned small integer)
+The type of an account. </p>
+<ul>
+<li>Name/Prefix: <code>type</code></li>
+<li>Validation: <code>^[0-65536]{1}$</code> </li>
+</ul>
+</li>
+<li><p><strong>name</strong> (base type = string)
+The name of an account.</p>
+<ul>
+<li>Name/Prefix: <code>name</code> </li>
+<li>Validation: 
+<code>^[a-z!@#$%^&amp;*()-+{}\\[\\]_:`|&lt;&gt;,\\.\\?\/~][a-z0-9!@#$%^&amp;*()-+{}\\[\\]_:`\\|&lt;&gt;,\\.\\?\\/~]*$</code></li>
+</ul>
+</li>
+<li><p><strong>public_key</strong> (base type = string)
+Either a hex encoded string containing the public key or the base 58 version of the public key. This is a rather drastic change but both strings are easily to differentiate on the server side and removes additional complexity from the implementation because currently all methods that accept a hex encoded key also accept the base58 version.</p>
+<p>If a response contains both (the base58 and the hex version), they can still be splitted by suffixing the field with <code>_b58</code> or <code>_hex</code>. </p>
+<p>In the current API implementation the hex version is called <code>enc_pubkey</code>. While this is understandable, a Base58 key is also an encoded value.</p>
+<ul>
+<li>Name/Prefix: <code>public_key</code> </li>
+<li>Validation Hex: <code>^[^A-F0-9]*([A-F0-9][^A-F0-9]*[A-F0-9][^A-F0-9]*)*$</code> </li>
+<li>Validation Base 58: <code>^[5KL][1-9A-HJ-NP-Za-km-z]$</code>  </li>
+</ul>
+</li>
+<li><p><strong>ec_nid</strong> (base type = unsigned small integer)
+An integer enumeration that can only contain the following values:</p>
+<ul>
+<li>Name/Prefix:  <code>ec_nid</code></li>
+<li>Validation: <code>^(714|715|729|716)$</code></li>
+</ul>
+</li>
+<li><p><strong>currency</strong> (base type = string)
+The currency value in molinas <code>[0-9]</code> as a string.</p>
+</li>
+</ul>
+<h4 id="objects">Objects</h4>
+<h5 id="connection">Connection</h5>
+<p>Holds data about a connection to a remote node.</p>
+<p><strong>Properties</strong></p>
+<ul>
+<li><p><code>type</code> - string <code>server</code> if this connection is to a server node. <code>client</code> if this connection is a client node</p>
+</li>
+<li><p><code>ip</code> - string The IP of remote node.</p>
+</li>
+<li><p><code>port</code> - integer The Port used by the remote node.</p>
+</li>
+<li><p><code>seconds_alive</code> - integer The number of the seconds the connection to the remote node is alive</p>
+</li>
+<li><p><code>bytes_sent</code> - integer The number of bytes received from the remote node.</p>
+</li>
+<li><p><code>bytes_received</code> - integer The number of bytes sent to the remote node.</p>
+</li>
+<li><p><code>app_version</code> - string The application version of the remote node</p>
+</li>
+<li><p><code>net_version</code> - integer The net protocol version of the remote node</p>
+</li>
+<li><p><code>net_version_available</code> - integer The net protocol version available of the remote node</p>
+</li>
+<li><p><code>time_difference</code> - integer The time difference in seconds of the remote node against the requested node.</p>
+</li>
+</ul>
+<p><strong>Example</strong></p>
+<pre><code class="lang-json">{
+  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"server"</span>,
+  <span class="hljs-attr">"ip"</span>: <span class="hljs-string">"188.166.87.36"</span>,
+  <span class="hljs-attr">"port"</span>: <span class="hljs-number">4004</span>,
+  <span class="hljs-attr">"seconds_alive"</span>: <span class="hljs-number">232</span>,
+  <span class="hljs-attr">"bytes_sent"</span>: <span class="hljs-number">1311</span>,
+  <span class="hljs-attr">"bytes_received"</span>: <span class="hljs-number">1722</span>,
+  <span class="hljs-attr">"app_version"</span>: <span class="hljs-string">"2.1.9lF"</span>,
+  <span class="hljs-attr">"net_version"</span>: <span class="hljs-number">6</span>,
+  <span class="hljs-attr">"net_version_available"</span>: <span class="hljs-number">6</span>,
+  <span class="hljs-attr">"time_difference"</span>: <span class="hljs-number">0</span>
+}
+</code></pre>
+<h5 id="account">Account</h5>
+<p>This object identifies an account with all it&#39;s data available.</p>
+<ul>
+<li><p><code>account (account_number)</code> 
+The unique account number without its checksum.</p>
+</li>
+<li><p><code>public_key_hex (public_key_hex)</code> </p>
+<p>Public key value in hex format of the owner.</p>
+</li>
+<li><p><code>balance (currency)</code>
+The balance of the account.</p>
+</li>
+<li><p><code>name (name)</code>
+The globally unique name of the account. </p>
+</li>
+<li><p><code>type</code>
+The type of the account.  </p>
+</li>
+<li><p><code>number_of_operations</code> </p>
+</li>
+<li><p><code>block_last_updated</code></p>
+</li>
+<li><p><code>state</code> </p>
+</li>
+<li><p><code>listing_info</code> </p>
+<ul>
+<li>price</li>
+<li>account_seller</li>
+<li>private_sale</li>
+<li>public_key_buyer</li>
+</ul>
+</li>
+</ul>
+<h4 id="multi-usage-of-fields">Multi-Usage of fields</h4>
+<p>If a field type is used multiple times, it will be prefixed with the predefined name and suffixed by it&#39;s description (<code>field_description</code>). </p>
+<p>For example: <code>account_seller</code>, <code>account_signer</code>, <code>account_destination</code> and so on.</p>
+<h4 id="prices">Prices</h4>
+<p>All prices (fee, transaction, rewards, ...) will be formatted in the smallest unit available (PASC * 10000 = molina). The prices need to be returned as a string, as they can exceed 32 bits. It is desribed as <code>currency</code> property type.</p>
+<pre><code class="lang-json">{
+  &quot;price_wrong&quot;: 10000,
+  &quot;price_correct: &quot;10000&quot;
+}
+</code></pre>
+<h4 id="paging">Paging</h4>
+<p>When results are truncated and/OR paged, the following fields are used to define the paging. </p>
+<ul>
+<li><strong>[unsigned integer] offset [default = 0]</strong>
+The offset parameter defines the start position of the truncated result set.</li>
+<li><strong>[unsigned integer] limit [default = *]</strong>
+The limit parameter defines the number of items of the truncated result set. The default value can differ from implementation to implementation, but <code>0</code> always means that all results are returned. If <code>0</code> as a value is not available, the documentation should state it clearly.</li>
+</ul>
+<h3 id="method-namespacing">Method namespacing</h3>
+<p>To create a better overview of the JSON-RPC API itself, we will logically categorize all available methods and rename them so that the name of the category (namespace) will not be part of the actual name of the method anymore and methods like <code>multioperationaddoperation</code> have the chance to be renamed to a more human readable version. We will use a dot <code>.</code> to make to make the separation.</p>
+<p>The resulting format is the namespace suffixed with the name of the method, divided by a <code>.</code> dot: <code>namespace.method</code>. </p>
+<p>When naming an operation, one must follow the following strategy:</p>
+<ul>
+<li>Whenever a method returns a single object the method will be prefixed with <code>get</code>. Together with the namespace-dot prefix the method name will be <code>namespace.get_*</code>.</li>
+<li>Whenever a method returns a list of objects the method will be prefixed with <code>list</code>. Together with the namespace-dot prefix the method name will be <code>namespace.list_*</code>.</li>
+<li>All methods expect a single parameter object which in itself contains multiple parameters and defines the signature of the method.</li>
+</ul>
+<h4 id="namespace-node">Namespace <code>node</code></h4>
+<p>This namespace contains all methods related to the administration of the node that receives the requests.</p>
+<h5 id="addnode">addnode</h5>
+<p>This method will be renamed to <code>node.add_nodes</code> (plural) since it receives multiple node addresses. In addition to that, we alter the signature of the method by changing the now semicolon separated <code>nodes</code> parameter to an array of strings.</p>
+<hr>
+<h6 id="node-add_nodes">node.add_nodes</h6>
+<p><em>Adds one or more nodes to the list of nodes and returns the number of nodes added.</em></p>
+<pre><code>integer node.add_nodes(
+  Array&lt;string&gt; $nodes
+)
+</code></pre><p><strong>Parameters</strong></p>
+<ul>
+<li><code>Array&lt;string&gt; $nodes</code> The list of nodes to add in the form of IP:port.</li>
+</ul>
+<p><strong>Result</strong></p>
+<p>The number of added nodes.</p>
+<p><strong>Example Request</strong></p>
+<pre><code class="lang-json">{
+  <span class="hljs-attr">"jsonrpc"</span>: <span class="hljs-string">"2.0"</span>,
+  <span class="hljs-attr">"method"</span>: <span class="hljs-string">"node.add_nodes"</span>,
+  <span class="hljs-attr">"params"</span>: {
+    <span class="hljs-attr">"nodes"</span>: [
+      <span class="hljs-string">"1.1.1.1:4003"</span>,
+      <span class="hljs-string">"192.168.0.88:4003"</span>
+    ]
+  },
+  <span class="hljs-attr">"id"</span>: <span class="hljs-number">1</span>
+}
+</code></pre>
+<p><strong>Example Response</strong></p>
+<pre><code class="lang-json">{
+  <span class="hljs-attr">"jsonrpc"</span>: <span class="hljs-string">"2.0"</span>,
+  <span class="hljs-attr">"id"</span>: <span class="hljs-number">1</span>,
+  <span class="hljs-attr">"result"</span>: <span class="hljs-number">1</span>
+}
+</code></pre>
+<p><strong>Example curl request</strong></p>
+<pre><code class="lang-bash">curl -X POST http://localhost:4003 \
+     -H <span class="hljs-string">"PascalCoin-Api-Version: v2"</span> \
+     -d @- &lt;&lt; EOF
+{
+  <span class="hljs-string">"jsonrpc"</span>: <span class="hljs-string">"2.0"</span>,
+  <span class="hljs-string">"method"</span>: <span class="hljs-string">"node.add_nodes"</span>,
+  <span class="hljs-string">"params"</span>: {
+    <span class="hljs-string">"nodes"</span>: [
+      <span class="hljs-string">"1.1.1.1:4003"</span>,
+      <span class="hljs-string">"192.168.0.88:4003"</span>
+    ]
+  },
+  <span class="hljs-string">"id"</span>: 1
+} 
+EOF
+</code></pre>
+<hr>
+<h5 id="nodestatus">nodestatus</h5>
+<p>This method will be renamed to <code>node.status</code>.</p>
+<hr>
+<p><em>Gets the status of the node.</em></p>
+<pre><code>NodeStatus? node.status()
+</code></pre><hr>
+<h5 id="getconnections">getconnections</h5>
+<p>This method will be renamed to <code>node.list_connections</code>.</p>
+<hr>
+<h6 id="node-list_connections">node.list_connections</h6>
+<p><em>Gets the list of all connections of the requested node.</em></p>
+<pre><code>array node.list_connections()
+</code></pre><p><strong>Parameters</strong></p>
+<ul>
+<li>No parameters.</li>
+</ul>
+<p><strong>Result</strong></p>
+<p>Information about a node.</p>
+<p><strong>Example Request</strong></p>
+<pre><code class="lang-json">{
+  <span class="hljs-attr">"jsonrpc"</span>: <span class="hljs-string">"2.0"</span>,
+  <span class="hljs-attr">"method"</span>: <span class="hljs-string">"node.list_connections"</span>,
+  <span class="hljs-attr">"params"</span>: {},
+  <span class="hljs-attr">"id"</span>: <span class="hljs-number">1</span>
+}
+</code></pre>
+<p><strong>Example Response</strong></p>
+<pre><code class="lang-json">{
+  <span class="hljs-attr">"id"</span>: <span class="hljs-number">123</span>,
+  <span class="hljs-attr">"jsonrpc"</span>: <span class="hljs-string">"2.0"</span>,
+  <span class="hljs-attr">"result"</span>: [
+    {
+      <span class="hljs-attr">"type"</span>: <span class="hljs-string">"server"</span>,
+      <span class="hljs-attr">"ip"</span>: <span class="hljs-string">"188.166.87.36"</span>,
+      <span class="hljs-attr">"port"</span>: <span class="hljs-number">4004</span>,
+      <span class="hljs-attr">"seconds_alive"</span>: <span class="hljs-number">232</span>,
+      <span class="hljs-attr">"bytes_sent"</span>: <span class="hljs-number">1311</span>,
+      <span class="hljs-attr">"bytes_received"</span>: <span class="hljs-number">1722</span>,
+      <span class="hljs-attr">"app_version"</span>: <span class="hljs-string">"2.1.9lF"</span>,
+      <span class="hljs-attr">"net_version"</span>: <span class="hljs-number">6</span>,
+      <span class="hljs-attr">"net_version_available"</span>: <span class="hljs-number">6</span>,
+      <span class="hljs-attr">"time_difference"</span>: <span class="hljs-number">0</span>
+    }
+  ]
+}
+</code></pre>
+<p><strong>Example curl request</strong></p>
+<pre><code class="lang-bash">curl -X POST http://localhost:4003 \
+     -H <span class="hljs-string">"PascalCoin-Api-Version: v2"</span> \
+     -d @- &lt;&lt; EOF
+{
+  <span class="hljs-string">"jsonrpc"</span>: <span class="hljs-string">"2.0"</span>,
+  <span class="hljs-string">"method"</span>: <span class="hljs-string">"node.list_connections"</span>,
+  <span class="hljs-string">"params"</span>: {},
+  <span class="hljs-string">"id"</span>: 1
+} 
+EOF
+</code></pre>
+<hr>
+<h5 id="stopnode">stopnode</h5>
+<p>This method will be renamed to <code>node.stop</code>.</p>
+<hr>
+<p><em>Tries to stop the current node and returns true on success.</em></p>
+<pre><code>boolean node.stop()
+</code></pre><hr>
+<h5 id="startnode">startnode</h5>
+<p>This method will be renamed to <code>node.start</code>.</p>
+<hr>
+<p><em>Tries to start the current node and returns true on success</em></p>
+<pre><code>boolean node.start()
+</code></pre><hr>
+<h4 id="namespace-blocks">Namespace <code>blocks</code></h4>
+<p>This category contains all methods related to blocks. The following methods fall into this category:</p>
+<h5 id="getblock">getblock</h5>
+<p>This method will be renamed to <code>blocks.get</code>.</p>
+<hr>
+<p><em>Gets the block with the given block_number. If the block was not found, it will return null.</em></p>
+<pre><code>Block? blocks.get(
+    block_number $block
+)
+</code></pre><hr>
+<h5 id="getblocks">getblocks</h5>
+<p>This method will be split up. </p>
+<hr>
+<p><em>Gets the blocks in the defined block number range. If there are no blocks in the given range, the method will return an empty array. If the range overlaps or exhaust the last mined block, the last block in the returned array will be the last mined block. If no blocks are found, the method will return an empty array.</em></p>
+<pre><code>Array&lt;Block&gt; blocks.list(
+    block_number $block_from,
+    block_number $block_to
+)
+</code></pre><hr>
+<p><em>Gets the last $count blocks starting from the last mined block.</em></p>
+<pre><code>Array&lt;Block&gt; blocks.last(
+    int $count
+)
+</code></pre><hr>
+<h5 id="getblockcount">getblockcount</h5>
+<p>This method will be renamed to <code>blocks.count</code>.</p>
+<hr>
+<p><em>Gets the number of mined blocks. known by the node.</em></p>
+<pre><code>int blocks.count()
+</code></pre><hr>
+<h5 id="getblockoperation">getblockoperation</h5>
+<p>This method will be renamed to <code>blocks.get_operation_at</code>.</p>
+<hr>
+<p><em>Gets the Operation in the defined block at the defined position. If there is no operation at the given position or the block does not exist the method will return null.</em></p>
+<pre><code>?Operation blocks.get_operation_at(
+    block_number $block,
+    int $position
+)
+</code></pre><hr>
+<h5 id="getblockoperations">getblockoperations</h5>
+<p>This method will be renamed to <code>blocks.list_operations</code>.</p>
+<hr>
+<p><em>Lists all operations of the given block. The results are sliced by the given start and max values. If the block has no operation, it will return an empty array</em></p>
+<pre><code>Array&lt;Operation&gt; blocks.list_operations(
+    block_number $block,
+    int $offset = 0,
+    int $limit = 100
+)
+</code></pre><hr>
+<h4 id="namespace-accounts">Namespace <code>accounts</code></h4>
+<p>This category contains all methods related to accounts (PASA). The following methods fall into this category:</p>
+<h5 id="getaccount">getaccount</h5>
+<p>This method will be renamed to <code>accounts.get</code>.</p>
+<hr>
+<p><em>Gets the account with the specified account number. If no account was found, it will return null.</em></p>
+<pre><code>?Account accounts.get(
+    account_number $account
+)
+</code></pre><hr>
+<h5 id="findaccounts">findaccounts</h5>
+<p>This method will be splitted into 3 methods.</p>
+<p> <code>accounts.get_by_name</code> and <code>account.list_by_type</code> and <code>accounts.list</code>. Since the name is unique, the <code>start</code> and <code>max</code> parameters don&#39;t make sense when searching for an account with a specified name.</p>
+<hr>
+<p><em>Gets a list of accounts starting at the given account_number and truncated to max accounts.</em></p>
+<pre><code>Array&lt;Account&gt; account.list(
+    int $offset,
+    int $limit
+)
+</code></pre><hr>
+<p><em>Gets a list of accounts with the given type starting the search at the given account_number and truncating the results to max accounts</em></p>
+<pre><code>Array&lt;Account&gt; account.list_by_type(
+    type $type,
+    int $offset,
+    int $limit
+)
+</code></pre><hr>
+<p><em>Gets an account with the given name. If no account was found it will return null.</em></p>
+<pre><code>?Account account.get_by_name(
+    name $name
+)
+</code></pre><hr>
+<h4 id="namespace-wallet">Namespace <code>wallet</code></h4>
+<p>This category contains all methods related to the wallet managed by the node. </p>
+<h5 id="getwalletaccounts">getwalletaccounts</h5>
+<p>This method will be splitted.</p>
+<hr>
+<p><em>Gets the list of accounts in the wallet.</em></p>
+<pre><code>Array&lt;Account&gt; wallet.list_accounts(
+    int $offset,
+    int $limit
+)
+</code></pre><hr>
+<p><em>Lists the accounts of the given public key</em></p>
+<pre><code>Array&lt;Account&gt; wallet.list_accounts_by_key(
+    public_key $public_key,
+    int $offset,
+    int $limit
+)
+</code></pre><hr>
+<h5 id="getwalletaccountscount">getwalletaccountscount</h5>
+<p>This method will be splitted.</p>
+<hr>
+<p><em>Gets the number of accounts known by the wallet.</em></p>
+<pre><code>int wallet.count_accounts()
+</code></pre><hr>
+<p><em>Gets the number of accounts of the given public key.</em></p>
+<pre><code>int wallet.count_accounts_by_public_key(
+    public_key $public_key
+)
+</code></pre><hr>
+<h5 id="getwalletpubkeys">getwalletpubkeys</h5>
+<p>This method will be renamed to <code>wallet.list_public_keys</code>.</p>
+<hr>
+<p><em>Gets a list of the known public keys.</em></p>
+<pre><code>Array&lt;PublicKey&gt; wallet.list_public_keys(
+    int $offset,
+    int $limit
+)
+</code></pre><hr>
+<h5 id="getwalletpublickey">getwalletpublickey</h5>
+<p>This method will be renamed to <code>wallet.get_public_key</code>.</p>
+<hr>
+<p><em>Gets the Public Key object of the given encoded public key. If the PublicKey object was not found it will return null.</em></p>
+<pre><code>?PublicKey wallet.get_public_key(
+    public_key $public_key
+)
+</code></pre><hr>
+<h5 id="setwalletpassword">setwalletpassword</h5>
+<p>This method will be renamed to <code>wallet.set_password</code>.</p>
+<hr>
+<p><em>Sets the password of the wallet.</em></p>
+<pre><code>boolean wallet.set_password(
+    string $password
+)
+</code></pre><hr>
+<h5 id="getwalletcoins">getwalletcoins</h5>
+<p>This method will be splitted.</p>
+<hr>
+<p><em>Gets the balance of the complete wallet including all accounts and public keys</em></p>
+<pre><code>currency wallet.get_balance()
+</code></pre><hr>
+<p><em>Gets the accumulated balance of all accounts of the given public key.</em></p>
+<pre><code>currency wallet.get_balance_of_public_key(
+    public_key $public_key
+)
+</code></pre><hr>
+<h5 id="addnewkey">addnewkey</h5>
+<p>This method will be renamed to <code>wallet.add_private_key</code>.</p>
+<hr>
+<p><em>Adds a private key to the wallet and returns the resulting PublicKey object on success.</em></p>
+<pre><code>PublicKey wallet.add_private_key(
+   ec_nid $ec_nid,
+   name $name
+)
+</code></pre><h5 id="lock">lock</h5>
+<p>This method will be renamed to <code>wallet.lock</code>.</p>
+<hr>
+<p><em>Locks the wallet.</em></p>
+<pre><code>boolean wallet.lock()
+</code></pre><hr>
+<h5 id="unlock">unlock</h5>
+<p>This method will be renamed to <code>wallet.unlock</code>.</p>
+<hr>
+<p><em>Unlocks the wallet using the given password.</em></p>
+<pre><code>boolean unlock(
+    string $password
+)
+</code></pre><hr>
+<h4 id="namespace-operations">Namespace <code>operations</code></h4>
+<h5 id="getpendings">getpendings</h5>
+<p>This method will be renamed to <code>operations.list_pendings</code>.</p>
+<hr>
+<p><em>Gets the list of pending operations.</em></p>
+<pre><code>Array&lt;Operation&gt; operations.list_pendings(
+    int $offset,
+    int $limit
+)
+</code></pre><hr>
+<h5 id="findoperation">findoperation</h5>
+<p>This method will be renamed to <code>operations.get</code>.</p>
+<hr>
+<p><em>Gets the operation with the given ophash. If the operation does not exist it will return null.</em></p>
+<pre><code>?Operation operations.get(
+    op_hash $op_hash
+)
+</code></pre><hr>
+<h5 id="executeoperations">executeoperations</h5>
+<p>This method will be renamed to <code>operations.execute</code>.</p>
+<hr>
+<p><em>Executes the given signed operations.</em></p>
+<pre><code>Array&lt;Operation&gt; operations.execute(
+   ??? signed_operations
+)
+</code></pre><h4 id="namespace-offline">Namespace <code>offline</code></h4>
+<p>This category contains all methods related to the offline signing operations.</p>
+<h5 id="operationsinfo">operationsinfo</h5>
+<p>This method will be renamed to <code>offline.decode_operations</code>.</p>
+<hr>
+<p><em>Decodes the given raw signed operation and returns the decoded Operation objects.</em></p>
+<pre><code>Array&lt;Operation&gt; offline.decode_operations(
+   ??? signed_operations
+)
+</code></pre><hr>
+<h5 id="singsendto">singsendto</h5>
+<p>This method will be renamed to <code>offline.send_to</code>.</p>
+<hr>
+<p><em>Signs a transaction operation.</em></p>
+<pre><code>??? offline.send_to(
+    hex $signed_operations = &#39;&#39;,
+    int $last_n_operation,
+    account_number $account_sender,
+    public_key $public_key_sender,
+    account_number $account_target,
+    public_key $public_key_target,
+    currency $amount,
+    currency $fee,
+    payload $payload,
+    payload_method $payload_method,
+    string $password
+)
+</code></pre><hr>
+<h5 id="signchangekey">signchangekey</h5>
+<p>This method will be renamed to <code>offline.change_key</code>.</p>
+<hr>
+<p><em>Signs a change key operation. </em></p>
+<pre><code>??? offline.change_key(
+    hex $signed_operations = &#39;&#39;,
+    int $last_n_operation,
+    account_number $account,
+    public_key $old_public_key,
+    public_key $new_public_key,
+    currency $fee = currency(0),
+    payload $payload = &#39;&#39;,
+    payload_method $payload_method = &#39;dest&#39;,
+    string $password = null
+)
+</code></pre><hr>
+<h5 id="signlistaccountforsale">signlistaccountforsale</h5>
+<p>This method will be renamed to <code>offline.list_account</code>.</p>
+<hr>
+<p><em>Signs a list account operation.</em></p>
+<pre><code>??? offline.list_account(
+    hex $signed_operations = &#39;&#39;,
+    int $last_n_operation,
+    account_number $account_signer,
+    public_key $public_key_signer,
+    account_number $account_target,
+    account_number $account_seller,
+    currency $price,
+    public_key $new_public_key,
+    block_number $locked_until_block,
+    currency $fee,
+    payload $payload,
+    payload_method $payload_method,
+    string $password
+)
+</code></pre><hr>
+<h5 id="signdelistaccountforsale">signdelistaccountforsale</h5>
+<p>This method will be renamed to <code>offline.delist_account</code>.</p>
+<hr>
+<p><em>Signs a delist account operation.</em></p>
+<pre><code>??? offline.delist_account(
+    hex $signed_operations = &#39;&#39;,
+    int $last_n_operation
+    public_key $public_key_signer,
+)
+</code></pre><hr>
+<h5 id="signbuyaccount">signbuyaccount</h5>
+<p>This method will be renamed to <code>offline.buy_account</code>.</p>
+<hr>
+<p><em>Signs a buy account operation.</em></p>
+<pre><code>??? offline.buy_account(
+    hex $signed_operations = &#39;&#39;,
+    int $last_n_operation,
+    account_number $account_buyer,
+    public_key $public_key_signer,
+    public_key $public_key_new,
+    account_number $account_to_purchase,
+    account_number $account_seller,
+    currency $price,
+    currency $amount,
+    currency $fee,
+    payload $payload,
+    payload_method $payload_method,
+    string $password
+)
+</code></pre><hr>
+<h5 id="signchangeaccountinfo">signchangeaccountinfo</h5>
+<p>This method will be renamed to <code>offline.change_account_info</code>.</p>
+<hr>
+<p><em>Signs a buy account operation.</em></p>
+<pre><code>??? offline.change_account_info(
+    hex $signed_operations = &#39;&#39;,
+    int $last_n_operation,
+    account_number $account_signer,
+    public_key $public_key_signer,
+    public_key $public_key_new,
+    account_number $account_to_purchase,
+    account_number $account_seller,
+    currency $price,
+    currency $amount,
+    currency $fee,
+    payload $payload,
+    payload_method $payload_method,
+    string $password
+)
+</code></pre><hr>
+<ul>
+<li><code>signsendto -&gt; sign.send</code> </li>
+</ul>
+<ul>
+<li><code>signchangekey -&gt; sign.change_key</code> </li>
+<li><code>signlistaccountforsale -&gt; sign.list_for_sale</code> </li>
+<li><code>signbuyaccount -&gt; sign.buy_account</code> </li>
+<li><code>signchangeaccountinfo -&gt; sign.</code> </li>
+</ul>
+<p><strong>public_key</strong></p>
+<ul>
+<li><code>encodepubkey -&gt; public_key.encode</code> </li>
+<li><code>decodepubkey -&gt; public_key.decode</code> </li>
+</ul>
+<h2 id="objects">Objects</h2>
+<h3 id="account">Account</h3>
+<p>This object identifies an account with all it&#39;s data available.</p>
+<ul>
+<li><p><code>account &lt;account_number&gt;</code> 
+The unique account number without its checksum.</p>
+</li>
+<li><p><code>public_key_hex</code> </p>
+<p>Encoded public key value of the owner.</p>
+</li>
+<li><p><code>balance</code>
+The balance of the account.</p>
+</li>
+<li><p><code>name</code>
+The globally unique name of the account. </p>
+</li>
+<li><p><code>type</code>
+The type of the account.  </p>
+</li>
+<li><p><code>number_of_operations</code> </p>
+</li>
+<li><p><code>block_last_updated</code></p>
+</li>
+<li><p><code>state</code> </p>
+</li>
+<li><p><code>listing_info</code> </p>
+<ul>
+<li>price</li>
+<li>account_seller</li>
+<li>private_sale</li>
+<li>public_key_buyer</li>
+<li>​</li>
+</ul>
+</li>
+</ul>
+<h2 id="rationale">Rationale</h2>
+<p>Discussion why was the specification was chosen over alternate designs. Evidence supporting the specification should be provided here, as well as community concerns and consensus.</p>
+<h2 id="backwards-compatibility">Backwards Compatibility</h2>
+<p>I suggest a parallel implementation with a goal set with which major version the old API will be deactivated. The simplest way is to implement a custom HTTP header which will define the version that the client wants to access. The use of a <code>X-</code> prefixed header is deprecated with <a href="https://tools.ietf.org/html/rfc6648">https://tools.ietf.org/html/rfc6648</a>, so a suggestion with all the considerations mentioned in the RFC in mind would be: </p>
+<p><code>Api-Version: v2</code></p>
+<p>Either create a new entrypoint for all HTTP requests (localhost:4003/v2) or   </p>
+<p>Any backwards incompatibilities should be described here, as well as work-arounds/solutions for these incompatibilities.</p>
+<h2 id="reference-implementation">Reference Implementation</h2>
+<p>The reference implementation must be provided before PIP is Completed.</p>
+<h2 id="links">Links</h2>
+<p>References and links to relevant material</p>
+</article>
