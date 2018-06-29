@@ -991,21 +991,9 @@ This object identifies an account with all it's data available.
 
 ## Rationale
 
-Discussion why was the specification was chosen over alternate designs. Evidence supporting the specification should be provided here, as well as community concerns and consensus.
-
 ## Backwards Compatibility
 
-I suggest a parallel implementation with a goal set with which major version the old API will be deactivated. The simplest way is to implement a custom HTTP header which will define the version that the client wants to access. The use of a `X-` prefixed header is deprecated with https://tools.ietf.org/html/rfc6648, so a suggestion with all the considerations mentioned in the RFC in mind would be: 
-
-`Api-Version: v2`
-
-Either create a new entrypoint for all HTTP requests (localhost:4003/v2) or   
-
-Any backwards incompatibilities should be described here, as well as work-arounds/solutions for these incompatibilities.
-
 ## Reference Implementation
-
-The reference implementation must be provided before PIP is Completed.
 
 ## Links
 

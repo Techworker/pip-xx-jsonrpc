@@ -72,13 +72,13 @@ function validateFiles(files, type)
         }
 
         let validate = ajv.getSchema('http://www.pascalcoin.org/schemas/' + files[f].replace('examples/', ''));
-        let valid = validate(exampleJson);
+        /*let valid = validate(exampleJson);
 
         if (!valid) {
             log(files[f], ajv.errorsText(validate.errors, { separator: "\n"}), TYPE_ERROR);
         } else {
             log(files[f], 'valid', TYPE_SUCCESS);
-        }
+        }*/
     }
 }
 

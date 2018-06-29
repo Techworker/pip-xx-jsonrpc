@@ -799,13 +799,7 @@ The type of the account.  </p>
 </li>
 </ul>
 <h2 id="rationale">Rationale</h2>
-<p>Discussion why was the specification was chosen over alternate designs. Evidence supporting the specification should be provided here, as well as community concerns and consensus.</p>
 <h2 id="backwards-compatibility">Backwards Compatibility</h2>
-<p>I suggest a parallel implementation with a goal set with which major version the old API will be deactivated. The simplest way is to implement a custom HTTP header which will define the version that the client wants to access. The use of a <code>X-</code> prefixed header is deprecated with <a href="https://tools.ietf.org/html/rfc6648">https://tools.ietf.org/html/rfc6648</a>, so a suggestion with all the considerations mentioned in the RFC in mind would be: </p>
-<p><code>Api-Version: v2</code></p>
-<p>Either create a new entrypoint for all HTTP requests (localhost:4003/v2) or   </p>
-<p>Any backwards incompatibilities should be described here, as well as work-arounds/solutions for these incompatibilities.</p>
 <h2 id="reference-implementation">Reference Implementation</h2>
-<p>The reference implementation must be provided before PIP is Completed.</p>
 <h2 id="links">Links</h2>
 <p>References and links to relevant material</p>
